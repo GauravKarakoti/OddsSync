@@ -12,7 +12,7 @@ async-graphql = { version = "7.0.17", default-features = false, features = ["chr
 serde = { version = "1.0", features = ["derive"] }
 chrono = "0.4"
 futures = "0.3"
-tokio = { version = "=1.38.0", default-features = false, features = ["macros", "rt", "sync"] }
+tokio = { version = "1.38.0", default-features = false, features = ["macros", "sync"] }
 
 [profile.release]
 opt-level = 'z'
