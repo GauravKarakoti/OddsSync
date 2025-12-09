@@ -11,6 +11,7 @@ linera-sdk = { version = "0.15.0", default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 async-trait = "0.1"
 thiserror = "1.0"
+tokio = { version = "=1.38.0", default-features = false, features = ["macros", "rt", "sync"] }
 
 [profile.release]
 opt-level = 'z'  # Optimize for size
