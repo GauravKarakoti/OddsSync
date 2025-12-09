@@ -1,7 +1,7 @@
-use linera_sdk::base::{
-    Amount, ApplicationId, ChainId, Owner, Timestamp, ContractAbi, ServiceAbi
-};
+use linera_sdk::base::Owner;
 use serde::{Deserialize, Serialize};
+use linera_sdk::linera_base_types::{Amount, ApplicationId, ChainId, Timestamp};
+use linera_sdk::abi::{ContractAbi, ServiceAbi};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MarketInfo {

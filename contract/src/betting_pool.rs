@@ -1,8 +1,9 @@
 use crate::types::{Bet, BetParams};
 use linera_sdk::{
-    base::{Amount, Owner, Timestamp},
+    base::Owner,
     views::{MapView, View},
 };
+use linera_sdk::linera_base_types::{Amount, Timestamp};
 use std::collections::HashMap;
 
 pub struct BettingPool {

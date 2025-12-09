@@ -1,9 +1,11 @@
 use crate::types::{MarketInfo, MarketCreationParams};
 use linera_sdk::{
-    base::{Amount, ApplicationId, ChainId, Owner, WithContractAbi},
+    base::Owner,
     views::{View, MapView, RootView},
     Contract, ViewState,
 };
+use linera_sdk::linera_base_types::{Amount, ApplicationId, ChainId};
+use linera_sdk::abi::WithContractAbi;
 use std::sync::Arc;
 
 #[derive(RootView, ViewState)]

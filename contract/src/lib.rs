@@ -5,12 +5,13 @@ mod types;
 use crate::types::{OddsyncAbi, OddsyncMessage, OddsyncResponse};
 use async_trait::async_trait;
 use linera_sdk::{
-    base::{Amount, WithContractAbi},
     Contract, ViewState,
 };
 use market_factory::MarketFactory;
 use std::sync::Arc;
 use thiserror::Error;
+use linera_sdk::linera_base_types::Amount;
+linera_sdk::abi::WithContractAbi;
 
 #[derive(Error, Debug)]
 pub enum OddsyncError {
