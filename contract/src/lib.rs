@@ -46,7 +46,9 @@ impl Contract for OddsyncContract {
                 let creator = self.runtime.authenticated_signer()
                     .expect("No authenticated signer");
                 
-                match self.state.create_market(&mut self.runtime, creator, params).await {
+                let timestamp = self.runtime.system_time();
+                
+                match self.state.create_market(timestamp, creator, params).await {
                     Ok((market_id, chain_id)) => OddsyncResponse::MarketCreated {
                         market_id,
                         chain_id,

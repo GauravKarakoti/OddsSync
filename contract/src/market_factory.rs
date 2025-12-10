@@ -1,12 +1,10 @@
 use crate::types::{MarketInfo, MarketCreationParams};
 use linera_sdk::{
-    linera_base_types::{Amount, ChainId, AccountOwner, CryptoHash},
+    linera_base_types::{Amount, ChainId, AccountOwner, CryptoHash, Timestamp},
     views::{MapView, RegisterView, RootView, ViewStorageContext},
-    ContractRuntime,
 };
-use crate::OddsyncContract;
 
-#[derive(RootView)] // Removed Clone, as Views cannot be cloned
+#[derive(RootView)]
 #[view(context = ViewStorageContext)] 
 pub struct MarketFactory {
     // Chain ID -> Market Info
@@ -22,7 +20,7 @@ pub struct MarketFactory {
 impl MarketFactory {
     pub async fn create_market(
         &mut self,
-        runtime: &mut ContractRuntime<OddsyncContract>,
+        timestamp: Timestamp,
         creator: AccountOwner,
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
@@ -43,7 +41,7 @@ impl MarketFactory {
             options: params.options,
             liquidity: params.initial_liquidity,
             total_bets: Amount::ZERO,
-            created_at: runtime.system_time(),
+            created_at: timestamp,
             resolved_at: None,
             winning_option: None,
             is_active: true,
