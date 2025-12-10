@@ -1,11 +1,11 @@
-mod market_factory;
-mod betting_pool;
-mod types;
+pub mod market_factory; // Changed from 'mod' to 'pub mod'
+mod betting_pool;       // Keep private if not needed by service, or make pub
+pub mod types;          // Changed from 'mod' to 'pub mod'
 
 use crate::types::{OddsyncAbi, OddsyncMessage, OddsyncResponse};
 use linera_sdk::{
     Contract, ContractRuntime, 
-    views::{RootView, View}, // Ensure RootView and View are imported
+    views::{RootView, View},
 };
 use market_factory::MarketFactory;
 
@@ -27,8 +27,6 @@ impl Contract for OddsyncContract {
     type EventValue = ();
 
     async fn load(runtime: ContractRuntime<Self>) -> Self {
-        // FIXED: Switched back to load() now that MarketFactory compiles correctly.
-        // load() is async, so we must await it.
         let state = MarketFactory::load(runtime.root_view_storage_context())
             .await
             .expect("Failed to load state");
@@ -48,7 +46,6 @@ impl Contract for OddsyncContract {
                 let creator = self.runtime.authenticated_signer()
                     .expect("No authenticated signer");
                 
-                // Pass runtime to create_market
                 match self.state.create_market(&mut self.runtime, creator, params).await {
                     Ok((market_id, chain_id)) => OddsyncResponse::MarketCreated {
                         market_id,
@@ -57,12 +54,10 @@ impl Contract for OddsyncContract {
                     Err(_) => OddsyncResponse::Empty,
                 }
             }
-            
             OddsyncMessage::PlaceBet(params) => {
                 let _bettor = self.runtime.authenticated_signer()
                     .expect("No authenticated signer");
                 
-                // Check if user has sufficient balance
                 let balance = self.runtime.chain_balance();
                 if balance < params.amount {
                     panic!("Insufficient balance"); 
@@ -70,7 +65,6 @@ impl Contract for OddsyncContract {
                 
                 OddsyncResponse::BetPlaced { bet_id: 0 }
             }
-            
             OddsyncMessage::ResolveMarket { market_id, winning_option } => {
                  let _resolver = self.runtime.authenticated_signer()
                     .expect("No authenticated signer");
@@ -78,7 +72,6 @@ impl Contract for OddsyncContract {
                  let _ = self.state.market_resolved(market_id, winning_option).await;
                  OddsyncResponse::MarketResolved { market_id }
             }
-            
             OddsyncMessage::CrossChainBet { .. } => {
                 panic!("CrossChainBet is a message, not an operation");
             }
