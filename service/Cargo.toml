@@ -13,6 +13,7 @@ serde = { version = "1.0", features = ["derive"] }
 chrono = "0.4"
 futures = "0.3"
 tokio = { version = "1.38.0", default-features = false, features = ["macros", "sync"] }
+contract = { version = "0.1.0", path = "../contract" }
 
 [profile.release]
 opt-level = 'z'

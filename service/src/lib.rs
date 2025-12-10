@@ -1,9 +1,8 @@
-mod graphql;
-
 use crate::graphql::{MutationRoot, QueryRoot};
 use async_graphql::{EmptySubscription, Schema};
 use linera_sdk::{Service, ViewState};
 use std::sync::Arc;
+use linera_sdk::serde_json;
 
 pub struct OddsyncService {
     state: Arc<dyn linera_sdk::views::View>,
@@ -17,7 +16,7 @@ impl OddsyncService {
 
 #[linera_sdk::service]
 impl Service for OddsyncService {
-    type Abi = oddsync_contract::OddsyncAbi;
+    type Abi = contract::OddsyncAbi;
     type State = Arc<dyn linera_sdk::views::View>;
     type Parameters = ();
 
