@@ -23,7 +23,7 @@ echo "Deploying OddsSync..."
 linera publish-and-create \
   target/wasm32-unknown-unknown/release/contract.wasm \
   target/wasm32-unknown-unknown/release/service.wasm \
-  --json-arguments '{"name":"Test Sports Event"}'
+  --json-argument '{"name":"Test Sports Event"}'
 
 # --- 4. Run the Service ---
 echo "Starting GraphQL Service on port 8081..."

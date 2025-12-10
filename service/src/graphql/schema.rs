@@ -1,7 +1,5 @@
 use async_graphql::*;
 use chrono::{DateTime, Utc};
-use linera_sdk::base::Owner;
-use linera_sdk::linera_base_types::{Amount, ChainId};
 
 #[derive(SimpleObject, Clone, Debug)]
 pub struct Market {

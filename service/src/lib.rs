@@ -5,15 +5,15 @@ use async_graphql::{EmptySubscription, Schema};
 use linera_sdk::{
     Service, ServiceRuntime, 
 };
-use std::sync::Arc; // Required for Arc
+use std::sync::Arc;
 use linera_sdk::serde_json;
-use linera_sdk::views::View;
+use linera_sdk::views::View; // View trait is needed for load()
 
 use contract::market_factory::MarketFactory;
 use contract::types::OddsyncAbi;
 
 pub struct OddsyncService {
-    state: Arc<MarketFactory>, // Changed to Arc<MarketFactory>
+    state: Arc<MarketFactory>,
 }
 
 linera_sdk::service!(OddsyncService);
@@ -26,9 +26,12 @@ impl Service for OddsyncService {
     type Parameters = ();
 
     async fn new(runtime: ServiceRuntime<Self>) -> Self {
-        let state = MarketFactory::pre_load(&runtime.root_view_storage_context())
+        // Use load() instead of pre_load(), await the result, and pass context by value
+        let state = MarketFactory::load(runtime.root_view_storage_context())
+            .await
             .expect("Failed to load state");
-        OddsyncService { state: Arc::new(state) } // Wrap loaded state in Arc
+            
+        OddsyncService { state: Arc::new(state) }
     }
 
     async fn handle_query(&self, query: String) -> String {
@@ -37,7 +40,6 @@ impl Service for OddsyncService {
             MutationRoot,
             EmptySubscription,
         )
-        // This clone now works because Arc is Clone
         .data(self.state.clone()) 
         .finish();
 
