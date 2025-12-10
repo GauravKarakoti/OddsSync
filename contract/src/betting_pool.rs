@@ -29,7 +29,7 @@ impl BettingPool {
             bettor,
             amount: params.amount,
             option_index: params.option_index,
-            placed_at: self.context().system_time(),
+            placed_at: self.all_bets.context().system_time(),
             market_id: params.market_id,
         };
         
@@ -39,14 +39,14 @@ impl BettingPool {
             .await
             .unwrap_or_default();
         
-        let option_total = market_bets
+        let option_total = market_bets.expect("REASON")
             .entry(params.option_index)
             .or_insert(Amount::ZERO);
         *option_total = option_total
             .checked_add(params.amount)
             .ok_or("Amount overflow")?;
         
-        self.market_bets.insert(&params.market_id, market_bets)?;
+        self.market_bets.insert(&params.market_id, market_bets.expect("REASON"))?;
         
         // Update user bets
         let mut user_bets = self.user_bets
@@ -63,7 +63,7 @@ impl BettingPool {
     }
     
     pub async fn calculate_odds(&self, market_id: u64, option_index: u32) -> Option<f64> {
-        if let Some(market_bets) = self.market_bets.get(&market_id).await {
+        if let Ok(Some(market_bets)) = self.market_bets.get(&market_id).await {
             let total: Amount = market_bets.values().sum();
             let option_bets = market_bets.get(&option_index).copied().unwrap_or(Amount::ZERO);
             

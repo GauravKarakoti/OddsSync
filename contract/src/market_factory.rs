@@ -40,7 +40,7 @@ impl MarketFactory {
             options: params.options,
             liquidity: params.initial_liquidity,
             total_bets: Amount::ZERO,
-            created_at: self.context().system_time(),
+            created_at: self.market_chains.context().system_time(),
             resolved_at: None,
             winning_option: None,
             is_active: true,
@@ -63,7 +63,7 @@ impl MarketFactory {
         );
         
         // Send system message to create new chain
-        self.context()
+        self.market_chains.context()
             .send_message(Box::new(operation))
             .await
             .map_err(|e| format!("Failed to spawn microchain: {:?}", e))?;
@@ -75,7 +75,7 @@ impl MarketFactory {
     
     pub async fn get_market(&self, market_id: u64) -> Option<MarketInfo> {
         if let Some(chain_id) = self.market_chains.get(&market_id) {
-            self.markets.get(&chain_id).await
+            self.markets.get(&chain_id).await.expect("REASON")
         } else {
             None
         }

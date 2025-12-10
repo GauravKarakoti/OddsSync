@@ -11,7 +11,7 @@ use market_factory::MarketFactory;
 use std::sync::Arc;
 use thiserror::Error;
 use linera_sdk::linera_base_types::Amount;
-linera_sdk::abi::WithContractAbi;
+use linera_sdk::abi::WithContractAbi;
 
 #[derive(Error, Debug)]
 pub enum OddsyncError {
