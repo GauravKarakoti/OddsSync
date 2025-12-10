@@ -4,7 +4,8 @@ mod types;
 
 use crate::types::{OddsyncAbi, OddsyncMessage, OddsyncResponse};
 use linera_sdk::{
-    Contract, ContractRuntime, // Removed ViewState (not in root)
+    Contract, ContractRuntime, 
+    views::RootView, // Added RootView to bring load/save into scope
 };
 use market_factory::MarketFactory;
 use linera_sdk::linera_base_types::Amount;
@@ -24,6 +25,7 @@ impl Contract for OddsyncContract {
     type Message = OddsyncMessage;
     type Parameters = ();
     type InstantiationArgument = ();
+    type EventValue = (); // Added missing associated type
 
     async fn load(runtime: ContractRuntime<Self>) -> Self {
         let state = MarketFactory::load(runtime.root_view_storage_context())

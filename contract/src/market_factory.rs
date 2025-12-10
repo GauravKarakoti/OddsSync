@@ -1,12 +1,12 @@
 use crate::types::{MarketInfo, MarketCreationParams};
 use linera_sdk::{
-    linera_base_types::{Amount, ChainId, AccountOwner, CryptoHash}, // Added AccountOwner, CryptoHash
+    linera_base_types::{Amount, ChainId, AccountOwner, CryptoHash},
     views::{MapView, RootView, ViewStorageContext},
     ContractRuntime,
 };
 use crate::OddsyncContract;
 
-#[derive(RootView, async_graphql::SimpleObject)]
+#[derive(RootView)] // Removed async_graphql::SimpleObject
 #[view(context = "ViewStorageContext")]
 pub struct MarketFactory {
     // Chain ID -> Market Info
@@ -20,22 +20,19 @@ impl MarketFactory {
     pub async fn create_market(
         &mut self,
         runtime: &mut ContractRuntime<OddsyncContract>,
-        creator: AccountOwner, // Changed to AccountOwner
+        creator: AccountOwner,
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
         // Generate new market ID
         let market_id = self.next_market_id;
         self.next_market_id += 1;
         
-        // Fix: ChainId wrapping_add is invalid. 
-        // We simulate a unique ChainId by creating a hash from the market_id.
-        // In a real app, you would likely use runtime.open_chain(...)
         let mut bytes = [0u8; 32];
         let id_bytes = market_id.to_le_bytes();
         bytes[0..8].copy_from_slice(&id_bytes);
         
-        // This creates a ChainId from a raw hash (mock implementation)
-        let new_chain_id = ChainId::from(CryptoHash::from(bytes));
+        // Fix: Use tuple struct constructor for ChainId
+        let new_chain_id = ChainId(CryptoHash::from(bytes));
         
         let market_info = MarketInfo {
             market_id,
