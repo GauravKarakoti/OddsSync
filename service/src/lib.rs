@@ -1,4 +1,4 @@
-use crate::graphql::{MutationRoot, QueryRoot};
+use crate::linera_sdk::graphql::{MutationRoot, QueryRoot};
 use async_graphql::{EmptySubscription, Schema};
 use linera_sdk::{Service, ViewState};
 use std::sync::Arc;
@@ -20,7 +20,7 @@ impl Service for OddsyncService {
     type State = Arc<dyn linera_sdk::views::View>;
     type Parameters = ();
 
-    async fn new(state: Self::State, _parameters: ()) -> Self {
+    async fn new(state: Self::State) -> Self {
         Self::new(state)
     }
 

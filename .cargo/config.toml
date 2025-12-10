@@ -11,7 +11,7 @@ target = "wasm32-unknown-unknown"
 [target.wasm32-unknown-unknown]
 rustflags = [
     "-C", "link-arg=-zstack-size=8192",
-    "-C", "link-arg=-Wl,--no-entry",
-    "-C", "link-arg=-Wl,--export-dynamic",
-    "-C", "link-arg=-Wl,--allow-undefined",
+    "-C", "link-arg=--no-entry",
+    "-C", "link-arg=--export-dynamic",
+    "-C", "link-arg=--allow-undefined",
 ]
