@@ -297,7 +297,7 @@ export default function MarketList({ isConnected }: any) {
                 <div className="text-sm text-gray-500 text-center">
                     All markets run on Linera microchains • Sub-second finality • Real-time odds updates
                     <br />
-                    Connected to Testnet Conway • Powered by Linera SDK 0.15.5
+                    Connected to Testnet Conway • Powered by Linera SDK 0.15.7
                 </div>
             </div>
         </div>
