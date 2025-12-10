@@ -5,10 +5,9 @@ mod types;
 use crate::types::{OddsyncAbi, OddsyncMessage, OddsyncResponse};
 use linera_sdk::{
     Contract, ContractRuntime, 
-    views::RootView, // Added RootView to bring load/save into scope
+    views::{RootView, View}, // Ensure RootView and View are imported
 };
 use market_factory::MarketFactory;
-use linera_sdk::linera_base_types::Amount;
 
 pub struct OddsyncContract {
     state: MarketFactory,
@@ -25,9 +24,11 @@ impl Contract for OddsyncContract {
     type Message = OddsyncMessage;
     type Parameters = ();
     type InstantiationArgument = ();
-    type EventValue = (); // Added missing associated type
+    type EventValue = ();
 
     async fn load(runtime: ContractRuntime<Self>) -> Self {
+        // FIXED: Switched back to load() now that MarketFactory compiles correctly.
+        // load() is async, so we must await it.
         let state = MarketFactory::load(runtime.root_view_storage_context())
             .await
             .expect("Failed to load state");

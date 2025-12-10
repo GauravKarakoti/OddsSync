@@ -13,6 +13,7 @@ async-trait = "0.1"
 thiserror = "1.0"
 tokio = { version = "1.38.0", default-features = false, features = ["macros", "sync"] }
 async-graphql = { version = "7.0.17", default-features = false } # Added dependency
+linera-views = "0.15.7"
 
 [profile.release]
 opt-level = 'z'

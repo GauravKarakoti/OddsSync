@@ -1,19 +1,23 @@
 use crate::types::{MarketInfo, MarketCreationParams};
 use linera_sdk::{
     linera_base_types::{Amount, ChainId, AccountOwner, CryptoHash},
-    views::{MapView, RootView, ViewStorageContext},
+    views::{MapView, RegisterView, RootView, ViewStorageContext},
     ContractRuntime,
 };
 use crate::OddsyncContract;
 
-#[derive(RootView)] // Removed async_graphql::SimpleObject
-#[view(context = "ViewStorageContext")]
+#[derive(RootView)]
+// FIXED: Removed quotes around ViewStorageContext
+#[view(context = ViewStorageContext)] 
 pub struct MarketFactory {
     // Chain ID -> Market Info
     pub markets: MapView<ChainId, MarketInfo>,
+
     // Market ID -> Chain ID
     pub market_chains: MapView<u64, ChainId>,
-    pub next_market_id: u64,
+
+    // RegisterView<u64>
+    pub next_market_id: RegisterView<u64>,
 }
 
 impl MarketFactory {
@@ -23,15 +27,15 @@ impl MarketFactory {
         creator: AccountOwner,
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
-        // Generate new market ID
-        let market_id = self.next_market_id;
-        self.next_market_id += 1;
+        // Accessing the value requires .get() which returns &u64
+        let market_id = *self.next_market_id.get();
+        // Setting the value
+        self.next_market_id.set(market_id + 1);
         
         let mut bytes = [0u8; 32];
         let id_bytes = market_id.to_le_bytes();
         bytes[0..8].copy_from_slice(&id_bytes);
         
-        // Fix: Use tuple struct constructor for ChainId
         let new_chain_id = ChainId(CryptoHash::from(bytes));
         
         let market_info = MarketInfo {

@@ -582,6 +582,7 @@ dependencies = [
  "async-graphql",
  "async-trait",
  "linera-sdk",
+ "linera-views",
  "serde",
  "thiserror 1.0.69",
  "tokio",
