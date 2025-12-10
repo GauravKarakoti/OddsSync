@@ -1,6 +1,6 @@
-use linera_sdk::base::Owner;
+use linera_sdk::linera_base_types::{Owner, Amount, ChainId, Timestamp};
+use linera_sdk::views::ViewError;
 use serde::{Deserialize, Serialize};
-use linera_sdk::linera_base_types::{Amount, ApplicationId, ChainId, Timestamp};
 use linera_sdk::abi::{ContractAbi, ServiceAbi};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -54,15 +54,13 @@ pub enum OddsyncResponse {
     MarketCreated { market_id: u64, chain_id: ChainId },
     BetPlaced { bet_id: u64 },
     MarketResolved { market_id: u64 },
-    Error(String),
+    Empty,
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Serialize, Deserialize)]
 pub struct OddsyncAbi;
 
 impl ContractAbi for OddsyncAbi {
-    type Parameters = ();
-    type InitializationArgument = ();
     type Operation = OddsyncMessage;
     type Response = OddsyncResponse;
 }

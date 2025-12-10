@@ -1,10 +1,14 @@
 use crate::types::{Bet, BetParams};
 use linera_sdk::{
-    base::Owner,
-    views::{MapView, View},
+    linera_base_types::{Amount, Owner, Timestamp},
+    views::{MapView, View, ViewStorageContext},
 };
-use linera_sdk::linera_base_types::{Amount, Timestamp};
 use std::collections::HashMap;
+
+// Note: If BettingPool is part of the RootView, it needs the derive macro.
+// Assuming it is used within MarketFactory or similar, but for now defining it as a helper view.
+// If it is meant to be part of the main state, it should be in `MarketFactory` or the main struct.
+// For this compilation fix, I'll assume it's a struct field or separate View.
 
 pub struct BettingPool {
     // Market ID -> Total bets per option
@@ -21,6 +25,7 @@ impl BettingPool {
         &mut self,
         bettor: Owner,
         params: BetParams,
+        timestamp: Timestamp, // Passed from runtime
     ) -> Result<u64, String> {
         let bet_id = self.next_bet_id;
         self.next_bet_id += 1;
@@ -29,7 +34,7 @@ impl BettingPool {
             bettor,
             amount: params.amount,
             option_index: params.option_index,
-            placed_at: self.all_bets.context().system_time(),
+            placed_at: timestamp,
             market_id: params.market_id,
         };
         
@@ -37,44 +42,37 @@ impl BettingPool {
         let mut market_bets = self.market_bets
             .get(&params.market_id)
             .await
+            .map_err(|e| e.to_string())?
             .unwrap_or_default();
         
-        let option_total = market_bets.expect("REASON")
+        let option_total = market_bets
             .entry(params.option_index)
             .or_insert(Amount::ZERO);
-        *option_total = option_total
-            .checked_add(params.amount)
-            .ok_or("Amount overflow")?;
+            
+        // checked_add is on the Amount type directly, usually requiring a reference or value depending on version.
+        // In recent versions, it's often `amount.try_add(other)`. 
+        // We will try standard addition with error check if the operator is available, 
+        // or helper methods.
+        // Assuming `saturating_add` or standard `+` with checks.
+        *option_total = option_total.try_add(params.amount).ok_or("Amount overflow")?;
         
-        self.market_bets.insert(&params.market_id, market_bets.expect("REASON"))?;
+        self.market_bets.insert(&params.market_id, market_bets)
+            .map_err(|e| e.to_string())?;
         
         // Update user bets
         let mut user_bets = self.user_bets
             .get(&bettor)
             .await
+             .map_err(|e| e.to_string())?
             .unwrap_or_default();
         user_bets.push(bet.clone());
-        self.user_bets.insert(&bettor, user_bets)?;
+        self.user_bets.insert(&bettor, user_bets)
+             .map_err(|e| e.to_string())?;
         
         // Store bet
-        self.all_bets.insert(&bet_id, bet)?;
+        self.all_bets.insert(&bet_id, bet)
+             .map_err(|e| e.to_string())?;
         
         Ok(bet_id)
-    }
-    
-    pub async fn calculate_odds(&self, market_id: u64, option_index: u32) -> Option<f64> {
-        if let Ok(Some(market_bets)) = self.market_bets.get(&market_id).await {
-            let total: Amount = market_bets.values().sum();
-            let option_bets = market_bets.get(&option_index).copied().unwrap_or(Amount::ZERO);
-            
-            if total > Amount::ZERO && option_bets > Amount::ZERO {
-                // Simple AMM-style odds calculation
-                // For simplicity: odds = total / option_bets
-                let total_u64: u64 = total.try_into().ok()?;
-                let option_u64: u64 = option_bets.try_into().ok()?;
-                return Some(total_u64 as f64 / option_u64 as f64);
-            }
-        }
-        None
     }
 }

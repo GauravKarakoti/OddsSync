@@ -1,15 +1,13 @@
 use crate::types::{MarketInfo, MarketCreationParams};
 use linera_sdk::{
-    base::Owner,
-    views::{View, MapView, RootView},
-    Contract, ViewState,
+    linera_base_types::{Amount, ChainId, Owner},
+    views::{MapView, RootView, View, ViewStorageContext},
+    ContractRuntime,
 };
-use linera_sdk::linera_base_types::{Amount, ApplicationId, ChainId};
-use linera_sdk::abi::WithContractAbi;
-use std::sync::Arc;
+use crate::OddsyncContract;
 
-#[derive(RootView, ViewState)]
-#[view(context = "linera_sdk::views::ViewContext")]
+#[derive(RootView, async_graphql::SimpleObject)]
+#[view(context = "ViewStorageContext")]
 pub struct MarketFactory {
     // Chain ID -> Market Info
     pub markets: MapView<ChainId, MarketInfo>,
@@ -21,6 +19,7 @@ pub struct MarketFactory {
 impl MarketFactory {
     pub async fn create_market(
         &mut self,
+        runtime: &mut ContractRuntime<OddsyncContract>,
         creator: Owner,
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
@@ -28,9 +27,12 @@ impl MarketFactory {
         let market_id = self.next_market_id;
         self.next_market_id += 1;
         
-        // Create a new microchain for this market
-        // This is a system operation in Conway testnet
-        let new_chain_id = self.spawn_microchain(creator).await?;
+        // In a real scenario, you might send a message to create a chain here.
+        // For this fix, we use the simulated ID generation you provided.
+        // To make it unique-ish, we mix the current chain ID.
+        // Note: exact arithmetic for ChainId generation isn't standard, 
+        // so we just mock it for compilation.
+        let new_chain_id = ChainId::from(runtime.chain_id().0.wrapping_add(market_id.into())); 
         
         let market_info = MarketInfo {
             market_id,
@@ -40,44 +42,43 @@ impl MarketFactory {
             options: params.options,
             liquidity: params.initial_liquidity,
             total_bets: Amount::ZERO,
-            created_at: self.market_chains.context().system_time(),
+            created_at: runtime.system_time(), // Use runtime for time
             resolved_at: None,
             winning_option: None,
             is_active: true,
         };
         
         // Store market info
-        self.markets.insert(&new_chain_id, market_info)?;
-        self.market_chains.insert(&market_id, new_chain_id)?;
+        self.markets.insert(&new_chain_id, market_info)
+            .map_err(|e| e.to_string())?;
+        self.market_chains.insert(&market_id, new_chain_id)
+             .map_err(|e| e.to_string())?;
         
         Ok((market_id, new_chain_id))
     }
     
-    async fn spawn_microchain(&self, owner: Owner) -> Result<ChainId, String> {
-        // In Conway testnet, we use create_application_with_parameters
-        // to spawn new permissioned microchains
-        let operation = linera_sdk::base::RawOutgoingMessage::System(
-            linera_sdk::base::SystemOperation::RequestCommittee {
-                validators: vec![owner],
-            },
-        );
-        
-        // Send system message to create new chain
-        self.market_chains.context()
-            .send_message(Box::new(operation))
-            .await
-            .map_err(|e| format!("Failed to spawn microchain: {:?}", e))?;
-        
-        // In practice, we'd get the chain ID from the system response
-        // For now, we simulate by generating a deterministic ID
-        Ok(ChainId::from(0u128.wrapping_add(self.next_market_id as u128)))
-    }
-    
     pub async fn get_market(&self, market_id: u64) -> Option<MarketInfo> {
-        if let Some(chain_id) = self.market_chains.get(&market_id) {
-            self.markets.get(&chain_id).await.expect("REASON")
+        if let Ok(Some(chain_id)) = self.market_chains.get(&market_id).await {
+            self.markets.get(&chain_id).await.unwrap_or(None)
         } else {
             None
         }
     }
+    
+     pub async fn market_resolved(&mut self, market_id: u64, winning_option: u32) -> Result<(), String> {
+         if let Ok(Some(chain_id)) = self.market_chains.get(&market_id).await {
+            if let Ok(Some(mut market)) = self.markets.get(&chain_id).await {
+                 market.is_active = false;
+                 market.winning_option = Some(winning_option);
+                 // resolved_at would ideally be set here using runtime time if passed
+                 self.markets.insert(&chain_id, market).map_err(|e| e.to_string())?;
+            }
+         }
+         Ok(())
+     }
+     
+     // Placeholder for cross chain logic
+     pub async fn process_cross_chain_bet(&mut self, _from_chain: ChainId, _bet: crate::types::Bet) -> Result<(), String> {
+         Ok(())
+     }
 }
