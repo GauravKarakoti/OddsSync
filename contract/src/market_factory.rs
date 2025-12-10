@@ -6,8 +6,7 @@ use linera_sdk::{
 };
 use crate::OddsyncContract;
 
-#[derive(RootView)]
-// FIXED: Removed quotes around ViewStorageContext
+#[derive(RootView)] // Removed Clone, as Views cannot be cloned
 #[view(context = ViewStorageContext)] 
 pub struct MarketFactory {
     // Chain ID -> Market Info
@@ -27,9 +26,7 @@ impl MarketFactory {
         creator: AccountOwner,
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
-        // Accessing the value requires .get() which returns &u64
         let market_id = *self.next_market_id.get();
-        // Setting the value
         self.next_market_id.set(market_id + 1);
         
         let mut bytes = [0u8; 32];
@@ -52,7 +49,6 @@ impl MarketFactory {
             is_active: true,
         };
         
-        // Store market info
         self.markets.insert(&new_chain_id, market_info)
             .map_err(|e| e.to_string())?;
         self.market_chains.insert(&market_id, new_chain_id)

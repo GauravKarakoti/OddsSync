@@ -1,24 +1,21 @@
-mod graphql; // Declare the graphql module so we can use resolvers/schema
+mod graphql;
 
-// Fix import: assume QueryRoot/MutationRoot are in schema.rs inside the graphql module
-use crate::graphql::schema::{MutationRoot, QueryRoot}; 
+use crate::graphql::resolvers::{MutationRoot, QueryRoot}; 
 use async_graphql::{EmptySubscription, Schema};
 use linera_sdk::{
     Service, ServiceRuntime, 
-    views::{View, RootView}, 
-    serde_json
 };
-use std::sync::Arc;
+use std::sync::Arc; // Required for Arc
+use linera_sdk::serde_json;
+use linera_sdk::views::View;
 
-// Import types from the contract crate
 use contract::market_factory::MarketFactory;
 use contract::types::OddsyncAbi;
 
 pub struct OddsyncService {
-    state: MarketFactory,
+    state: Arc<MarketFactory>, // Changed to Arc<MarketFactory>
 }
 
-// Use the macro at the top level, NOT as an attribute on the impl
 linera_sdk::service!(OddsyncService);
 
 impl linera_sdk::abi::WithServiceAbi for OddsyncService {
@@ -28,12 +25,10 @@ impl linera_sdk::abi::WithServiceAbi for OddsyncService {
 impl Service for OddsyncService {
     type Parameters = ();
 
-    // New signature uses ServiceRuntime
     async fn new(runtime: ServiceRuntime<Self>) -> Self {
-        let state = MarketFactory::load(runtime.root_view_storage_context())
-            .await
+        let state = MarketFactory::pre_load(&runtime.root_view_storage_context())
             .expect("Failed to load state");
-        OddsyncService { state }
+        OddsyncService { state: Arc::new(state) } // Wrap loaded state in Arc
     }
 
     async fn handle_query(&self, query: String) -> String {
@@ -42,9 +37,8 @@ impl Service for OddsyncService {
             MutationRoot,
             EmptySubscription,
         )
-        // Clone the state to pass it to the GraphQL context
-        // MarketFactory (a View) is typically cheap to clone (handle copy)
-        .data(self.state.clone())
+        // This clone now works because Arc is Clone
+        .data(self.state.clone()) 
         .finish();
 
         let result = schema.execute(query).await;

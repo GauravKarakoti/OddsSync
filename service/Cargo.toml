@@ -14,6 +14,7 @@ chrono = "0.4"
 futures = "0.3"
 tokio = { version = "1.38.0", default-features = false, features = ["macros", "sync"] }
 contract = { version = "0.1.0", path = "../contract" }
+serde_json = "1.0.145"
 
 [profile.release]
 opt-level = 'z'
