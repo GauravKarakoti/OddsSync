@@ -1,4 +1,4 @@
-use crate::types::{Bet, BetParams};
+use shared::types::{Bet, BetParams};
 use linera_sdk::{
     linera_base_types::{Amount, AccountOwner, Timestamp}, // Changed Owner to AccountOwner
     views::{MapView, ViewStorageContext},

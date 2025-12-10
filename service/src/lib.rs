@@ -9,8 +9,8 @@ use std::sync::Arc;
 use linera_sdk::serde_json;
 use linera_sdk::views::View; // View trait is needed for load()
 
-use contract::market_factory::MarketFactory;
-use contract::types::OddsyncAbi;
+use shared::market_factory::MarketFactory;
+use shared::types::OddsyncAbi;
 
 pub struct OddsyncService {
     state: Arc<MarketFactory>,

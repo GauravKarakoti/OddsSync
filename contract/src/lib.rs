@@ -1,13 +1,11 @@
-pub mod market_factory; // Changed from 'mod' to 'pub mod'
 mod betting_pool;       // Keep private if not needed by service, or make pub
-pub mod types;          // Changed from 'mod' to 'pub mod'
 
-use crate::types::{OddsyncAbi, OddsyncMessage, OddsyncResponse};
+use shared::types::{OddsyncAbi, OddsyncMessage, OddsyncResponse};
 use linera_sdk::{
     Contract, ContractRuntime, 
     views::{RootView, View},
 };
-use market_factory::MarketFactory;
+use shared::market_factory::MarketFactory;
 
 pub struct OddsyncContract {
     state: MarketFactory,

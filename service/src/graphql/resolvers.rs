@@ -1,6 +1,6 @@
 use crate::graphql::schema::*;
 use async_graphql::{Context, Object, Result};
-use contract::market_factory::MarketFactory; // Import MarketFactory
+use shared::market_factory::MarketFactory; // Import MarketFactory
 use std::sync::Arc;
 
 pub struct QueryRoot;
