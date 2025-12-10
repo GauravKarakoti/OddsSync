@@ -1,4 +1,4 @@
-use linera_sdk::linera_base_types::{Owner, Amount, ChainId, Timestamp};
+use linera_sdk::linera_base_types::{AccountOwner, Amount, ChainId, Timestamp}; // Changed Owner to AccountOwner
 use linera_sdk::views::ViewError;
 use serde::{Deserialize, Serialize};
 use linera_sdk::abi::{ContractAbi, ServiceAbi};
@@ -8,7 +8,7 @@ pub struct MarketInfo {
     pub market_id: u64,
     pub chain_id: ChainId,
     pub description: String,
-    pub creator: Owner,
+    pub creator: AccountOwner, // Changed to AccountOwner
     pub options: Vec<String>,
     pub liquidity: Amount,
     pub total_bets: Amount,
@@ -20,7 +20,7 @@ pub struct MarketInfo {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Bet {
-    pub bettor: Owner,
+    pub bettor: AccountOwner, // Changed to AccountOwner
     pub amount: Amount,
     pub option_index: u32,
     pub placed_at: Timestamp,

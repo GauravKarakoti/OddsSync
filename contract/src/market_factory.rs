@@ -1,7 +1,7 @@
 use crate::types::{MarketInfo, MarketCreationParams};
 use linera_sdk::{
-    linera_base_types::{Amount, ChainId, Owner},
-    views::{MapView, RootView, View, ViewStorageContext},
+    linera_base_types::{Amount, ChainId, AccountOwner, CryptoHash}, // Added AccountOwner, CryptoHash
+    views::{MapView, RootView, ViewStorageContext},
     ContractRuntime,
 };
 use crate::OddsyncContract;
@@ -20,19 +20,22 @@ impl MarketFactory {
     pub async fn create_market(
         &mut self,
         runtime: &mut ContractRuntime<OddsyncContract>,
-        creator: Owner,
+        creator: AccountOwner, // Changed to AccountOwner
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
         // Generate new market ID
         let market_id = self.next_market_id;
         self.next_market_id += 1;
         
-        // In a real scenario, you might send a message to create a chain here.
-        // For this fix, we use the simulated ID generation you provided.
-        // To make it unique-ish, we mix the current chain ID.
-        // Note: exact arithmetic for ChainId generation isn't standard, 
-        // so we just mock it for compilation.
-        let new_chain_id = ChainId::from(runtime.chain_id().0.wrapping_add(market_id.into())); 
+        // Fix: ChainId wrapping_add is invalid. 
+        // We simulate a unique ChainId by creating a hash from the market_id.
+        // In a real app, you would likely use runtime.open_chain(...)
+        let mut bytes = [0u8; 32];
+        let id_bytes = market_id.to_le_bytes();
+        bytes[0..8].copy_from_slice(&id_bytes);
+        
+        // This creates a ChainId from a raw hash (mock implementation)
+        let new_chain_id = ChainId::from(CryptoHash::from(bytes));
         
         let market_info = MarketInfo {
             market_id,
@@ -42,7 +45,7 @@ impl MarketFactory {
             options: params.options,
             liquidity: params.initial_liquidity,
             total_bets: Amount::ZERO,
-            created_at: runtime.system_time(), // Use runtime for time
+            created_at: runtime.system_time(),
             resolved_at: None,
             winning_option: None,
             is_active: true,
@@ -70,14 +73,12 @@ impl MarketFactory {
             if let Ok(Some(mut market)) = self.markets.get(&chain_id).await {
                  market.is_active = false;
                  market.winning_option = Some(winning_option);
-                 // resolved_at would ideally be set here using runtime time if passed
                  self.markets.insert(&chain_id, market).map_err(|e| e.to_string())?;
             }
          }
          Ok(())
      }
      
-     // Placeholder for cross chain logic
      pub async fn process_cross_chain_bet(&mut self, _from_chain: ChainId, _bet: crate::types::Bet) -> Result<(), String> {
          Ok(())
      }
