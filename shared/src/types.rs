@@ -2,30 +2,34 @@ use linera_sdk::linera_base_types::{AccountOwner, Amount, ChainId, Timestamp};
 use linera_sdk::views::ViewError;
 use serde::{Deserialize, Serialize};
 use linera_sdk::abi::{ContractAbi, ServiceAbi};
-use async_graphql::{SimpleObject, ComplexObject}; // Added async_graphql traits
 
-#[derive(Clone, Debug, Deserialize, Serialize, SimpleObject)]
-#[graphql(complex)] // Indicates we are adding custom field resolvers below
+#[cfg(feature = "service")]
+use async_graphql::{SimpleObject, ComplexObject};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "service", derive(SimpleObject))]
+#[cfg_attr(feature = "service", graphql(complex))]
 pub struct MarketInfo {
     pub market_id: u64,
-    #[graphql(skip)] // Skip raw ChainId, we expose it via complex object below
+    #[cfg_attr(feature = "service", graphql(skip))]
     pub chain_id: ChainId,
     pub description: String,
-    #[graphql(skip)]
+    #[cfg_attr(feature = "service", graphql(skip))]
     pub creator: AccountOwner,
     pub options: Vec<String>,
-    #[graphql(skip)]
+    #[cfg_attr(feature = "service", graphql(skip))]
     pub liquidity: Amount,
-    #[graphql(skip)]
+    #[cfg_attr(feature = "service", graphql(skip))]
     pub total_bets: Amount,
-    #[graphql(skip)]
+    #[cfg_attr(feature = "service", graphql(skip))]
     pub created_at: Timestamp,
-    #[graphql(skip)]
+    #[cfg_attr(feature = "service", graphql(skip))]
     pub resolved_at: Option<Timestamp>,
     pub winning_option: Option<u32>,
     pub is_active: bool,
 }
 
+#[cfg(feature = "service")]
 #[ComplexObject]
 impl MarketInfo {
     async fn chain_id(&self) -> String {
