@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # OddsSync Deployment Script for Linera Testnet Conway
-# SDK Version: 0.15.7
+# SDK Version: 0.15.6
 
 set -e
 
@@ -31,8 +31,8 @@ check_prerequisites() {
     
     # Check version
     LINERA_VERSION=$(linera --version | cut -d' ' -f2)
-    if [[ "$LINERA_VERSION" != "0.15.7" ]]; then
-        echo -e "${YELLOW}Warning: Using linera version $LINERA_VERSION, expected 0.15.7${NC}"
+    if [[ "$LINERA_VERSION" != "0.15.6" ]]; then
+        echo -e "${YELLOW}Warning: Using linera version $LINERA_VERSION, expected 0.15.6${NC}"
     fi
     
     # Check if Rust is installed
@@ -220,7 +220,7 @@ show_summary() {
     echo ""
     echo "📊 Deployment Details:"
     echo "  Network:    Linera Testnet Conway"
-    echo "  SDK:        0.15.7"
+    echo "  SDK:        0.15.6"
     echo "  Chain ID:   $CHAIN_ID"
     
     if [ ! -z "$APPLICATION_ID" ]; then
