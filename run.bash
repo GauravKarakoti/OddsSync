@@ -16,10 +16,9 @@ linera_spawn linera net up --with-faucet
 export LINERA_FAUCET_URL=http://localhost:8080
 linera wallet init --faucet="$LINERA_FAUCET_URL"
 
-# Request a chain and capture the Chain ID
 echo "Requesting chain..."
-CHAIN_INFO=$(linera wallet request-chain --faucet="$LINERA_FAUCET_URL" --json)
-CHAIN_ID=$(echo "$CHAIN_INFO" | jq -r '.chain_id')
+CHAIN_INFO=($(linera wallet request-chain --faucet="$LINERA_FAUCET_URL"))
+CHAIN_ID=${CHAIN_INFO[0]}
 echo "Using Chain ID: $CHAIN_ID"
 
 # --- 2. Build OddsSync ---
@@ -30,16 +29,14 @@ rustup target add wasm32-unknown-unknown
 cargo build --release --target wasm32-unknown-unknown -p contract
 cargo build --release --target wasm32-unknown-unknown -p service
 
-# --- 3. Publish and Create Application ---
 echo "Deploying OddsSync..."
 # Capture the Application ID
-APP_INFO=$(linera publish-and-create \
+APP_INFO=($(linera publish-and-create \
   target/wasm32-unknown-unknown/release/contract.wasm \
   target/wasm32-unknown-unknown/release/service.wasm \
-  --json-argument '{"name":"Test Sports Event"}' \
-  --json)
+  --json-argument '{"name":"Test Sports Event"}'))
 
-APP_ID=$(echo "$APP_INFO" | jq -r '.application_id')
+APP_ID=${APP_INFO[0]}
 echo "App Deployed with ID: $APP_ID"
 
 # --- 4. Submit Operation (Step 2 Implementation) ---
