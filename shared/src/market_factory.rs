@@ -9,8 +9,12 @@ use linera_base::{
     data_types::{Amount, Timestamp},
 };
 
-// FIX: Only derive RootView. It automatically implements View for you.
-#[derive(RootView)]
+// FIX: Conditionally derive RootView.
+// Services are read-only and must not have the `save` method (which RootView provides).
+// If `save` is present, the linker tries to import `schedule_operation`, causing the "unknown import" error.
+// The `View` derive (used for the service) provides `load` but not `save`.
+#[cfg_attr(feature = "contract", derive(RootView))]
+#[cfg_attr(not(feature = "contract"), derive(View))]
 pub struct MarketFactory<C> {
     pub markets: MapView<C, ChainId, MarketInfo>,
     pub market_chains: MapView<C, u64, ChainId>,
