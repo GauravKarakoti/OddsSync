@@ -1,7 +1,7 @@
-@import 'tailwindcss';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@config "../tailwind.config.cjs";
 
 /* Custom Base Styles */
 @layer base {
@@ -52,7 +52,11 @@
 @layer components {
   /* Card variants */
   .card-hover {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl;
+    @apply transition-all duration-300;
+    
+    &:hover {
+      @apply scale-[1.02] shadow-2xl;
+    }
   }
   
   .card-glow {
@@ -70,30 +74,48 @@
   
   /* Button variants */
   .btn-gradient {
-    @apply bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold
-           hover:from-purple-700 hover:to-blue-700 
-           active:scale-95 transition-all duration-200
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold transition-all duration-200;
+    
+    &:hover {
+      @apply from-purple-700 to-blue-700;
+    }
+    
+    &:active {
+      @apply scale-95;
+    }
+    
+    &:disabled {
+      @apply opacity-50 cursor-not-allowed;
+    }
   }
   
   .btn-outline-gradient {
-    @apply border border-transparent bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-border
-           text-transparent bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text
-           hover:text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600
-           transition-all duration-200;
+    @apply border border-transparent bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-border text-transparent bg-clip-text transition-all duration-200;
+    
+    &:hover {
+      @apply text-white from-purple-600 to-blue-600;
+    }
   }
   
   .btn-glass {
-    @apply backdrop-blur-sm bg-white/5 border border-white/10
-           hover:bg-white/10 hover:border-white/20
-           transition-all duration-200;
+    @apply backdrop-blur-sm bg-white/5 border border-white/10 transition-all duration-200;
+    
+    &:hover {
+      @apply bg-white/10 border-white/20;
+    }
   }
   
   /* Input variants */
   .input-glass {
-    @apply backdrop-blur-sm bg-white/5 border border-white/10
-           focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20
-           placeholder:text-gray-400 transition-all duration-200;
+    @apply backdrop-blur-sm bg-white/5 border border-white/10 transition-all duration-200;
+    
+    &::placeholder {
+      @apply text-gray-400;
+    }
+    
+    &:focus {
+      @apply border-purple-500 ring-2 ring-purple-500/20;
+    }
   }
   
   /* Badge variants */
@@ -119,8 +141,7 @@
   
   /* Glass panel */
   .panel-glass {
-    @apply backdrop-blur-xl bg-gray-900/30 border border-gray-800/50
-           shadow-2xl;
+    @apply backdrop-blur-xl bg-gray-900/30 border border-gray-800/50 shadow-2xl;
   }
 }
 
