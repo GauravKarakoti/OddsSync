@@ -19,21 +19,24 @@ impl QueryRoot {
 
     /// Get market by ID
     async fn market(&self, ctx: &Context<'_>, market_id: u64) -> Result<Option<Market>> {
-        let state &Arc<MarketFactory<_>> = ctx.data::<Arc<MarketFactory<_>>>()?;
+        // FIXED: Corrected variable binding syntax
+        let state = ctx.data::<Arc<MarketFactory<ViewStorageContext>>>()?;
         // TODO: Implement fetching logic
         Ok(None)
     }
 
     /// Get bets for a user
     async fn my_bets(&self, ctx: &Context<'_>, _address: String) -> Result<Vec<Bet>> {
-        let state &Arc<MarketFactory<_>> = ctx.data::<Arc<MarketFactory<_>>>()?;
+        // FIXED: Corrected variable binding syntax
+        let state = ctx.data::<Arc<MarketFactory<ViewStorageContext>>>()?;
         // TODO: Implement fetching logic
         Ok(vec![])
     }
 
     /// Get real-time odds for a market
     async fn live_odds(&self, ctx: &Context<'_>, market_id: u64) -> Result<Vec<Odds>> {
-        let state &Arc<MarketFactory<_>> = ctx.data::<Arc<MarketFactory<_>>>()?;
+        // FIXED: Corrected variable binding syntax
+        let state = ctx.data::<Arc<MarketFactory<ViewStorageContext>>>()?;
         // TODO: Implement calculation logic
         Ok(vec![])
     }
