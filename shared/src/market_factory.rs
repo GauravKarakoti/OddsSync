@@ -7,25 +7,23 @@ use linera_sdk::{
 #[derive(RootView)]
 #[view(context = ViewStorageContext)] 
 pub struct MarketFactory {
-    // Chain ID -> Market Info
     pub markets: MapView<ChainId, MarketInfo>,
-
-    // Market ID -> Chain ID
     pub market_chains: MapView<u64, ChainId>,
-
-    // RegisterView<u64>
     pub next_market_id: RegisterView<u64>,
 }
 
 impl MarketFactory {
+    // GATE THIS FUNCTION
+    #[cfg(feature = "contract")] 
     pub async fn create_market(
         &mut self,
         timestamp: Timestamp,
         creator: AccountOwner,
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
+        // ... (existing implementation) ...
         let market_id = *self.next_market_id.get();
-        self.next_market_id.set(market_id + 1);
+        self.next_market_id.set(market_id + 1); // This generated the invalid import!
         
         let mut bytes = [0u8; 32];
         let id_bytes = market_id.to_le_bytes();
@@ -55,6 +53,7 @@ impl MarketFactory {
         Ok((market_id, new_chain_id))
     }
     
+    // Read-only methods are safe for both
     pub async fn get_market(&self, market_id: u64) -> Option<MarketInfo> {
         if let Ok(Some(chain_id)) = self.market_chains.get(&market_id).await {
             self.markets.get(&chain_id).await.unwrap_or(None)
@@ -63,6 +62,8 @@ impl MarketFactory {
         }
     }
     
+    // GATE THIS FUNCTION
+    #[cfg(feature = "contract")]
      pub async fn market_resolved(&mut self, market_id: u64, winning_option: u32) -> Result<(), String> {
          if let Ok(Some(chain_id)) = self.market_chains.get(&market_id).await {
             if let Ok(Some(mut market)) = self.markets.get(&chain_id).await {
@@ -74,6 +75,8 @@ impl MarketFactory {
          Ok(())
      }
      
+     // GATE THIS FUNCTION
+     #[cfg(feature = "contract")]
      pub async fn process_cross_chain_bet(&mut self, _from_chain: ChainId, _bet: crate::types::Bet) -> Result<(), String> {
          Ok(())
      }

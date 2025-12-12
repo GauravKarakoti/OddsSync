@@ -6,6 +6,7 @@ edition = "2024"
 [features]
 default = []
 service = ["dep:async-graphql"]
+contract = []
 
 [dependencies]
 linera-sdk = { version = "0.15.7", default-features = false }

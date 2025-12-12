@@ -7,13 +7,13 @@ edition = "2024"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-linera-sdk = { version = "0.15.7", default-features = false, features = ["contract"] }
+linera-sdk = { version = "0.15.7", default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 async-trait = "0.1"
 thiserror = "1.0"
 tokio = { version = "1.38.0", default-features = false, features = ["macros", "sync"] }
 linera-views = "0.15.7"
-shared = { path = "../shared" } # Do NOT enable "service" feature here
+shared = { path = "../shared", features = ["contract"] }
 
 [profile.release]
 opt-level = 'z'
