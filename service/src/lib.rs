@@ -10,19 +10,19 @@ use linera_sdk::serde_json;
 use linera_sdk::views::View; // View trait is needed for load()
 
 use shared::market_factory::MarketFactory;
-use shared::types::OddsyncAbi;
+use shared::types::OddssyncAbi;
 
-pub struct OddsyncService {
+pub struct OddssyncService {
     state: Arc<MarketFactory>,
 }
 
-linera_sdk::service!(OddsyncService);
+linera_sdk::service!(OddssyncService);
 
-impl linera_sdk::abi::WithServiceAbi for OddsyncService {
-    type Abi = OddsyncAbi;
+impl linera_sdk::abi::WithServiceAbi for OddssyncService {
+    type Abi = OddssyncAbi;
 }
 
-impl Service for OddsyncService {
+impl Service for OddssyncService {
     type Parameters = ();
 
     async fn new(runtime: ServiceRuntime<Self>) -> Self {
@@ -31,7 +31,7 @@ impl Service for OddsyncService {
             .await
             .expect("Failed to load state");
             
-        OddsyncService { state: Arc::new(state) }
+        OddssyncService { state: Arc::new(state) }
     }
 
     async fn handle_query(&self, query: String) -> String {

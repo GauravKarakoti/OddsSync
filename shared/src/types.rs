@@ -76,7 +76,7 @@ pub struct BetParams {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum OddsyncMessage {
+pub enum OddssyncMessage {
     CreateMarket(MarketCreationParams),
     PlaceBet(BetParams),
     ResolveMarket { market_id: u64, winning_option: u32 },
@@ -84,7 +84,7 @@ pub enum OddsyncMessage {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum OddsyncResponse {
+pub enum OddssyncResponse {
     MarketCreated { market_id: u64, chain_id: ChainId },
     BetPlaced { bet_id: u64 },
     MarketResolved { market_id: u64 },
@@ -92,14 +92,14 @@ pub enum OddsyncResponse {
 }
 
 #[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Serialize, Deserialize)]
-pub struct OddsyncAbi;
+pub struct OddssyncAbi;
 
-impl ContractAbi for OddsyncAbi {
-    type Operation = OddsyncMessage;
-    type Response = OddsyncResponse;
+impl ContractAbi for OddssyncAbi {
+    type Operation = OddssyncMessage;
+    type Response = OddssyncResponse;
 }
 
-impl ServiceAbi for OddsyncAbi {
+impl ServiceAbi for OddssyncAbi {
     type Query = String;
     type QueryResponse = String;
 }

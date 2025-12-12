@@ -47,7 +47,7 @@ export default function WalletConnect() {
         setIsConnecting(false);
         
         // Store in localStorage for demo
-        localStorage.setItem('oddsync_wallet', JSON.stringify({
+        localStorage.setItem('oddssync_wallet', JSON.stringify({
             address: mockAddress,
             balance: mockBalance,
             network: 'Conway Testnet',
@@ -66,7 +66,7 @@ export default function WalletConnect() {
         setBalance('0.00');
         setNetwork('');
         setIsConnected(false);
-        localStorage.removeItem('oddsync_wallet');
+        localStorage.removeItem('oddssync_wallet');
         
         window.dispatchEvent(new CustomEvent('walletDisconnected'));
     };
@@ -90,7 +90,7 @@ export default function WalletConnect() {
 
     // Check for existing connection on mount
     useEffect(() => {
-        const saved = localStorage.getItem('oddsync_wallet');
+        const saved = localStorage.getItem('oddssync_wallet');
         if (saved) {
             try {
                 const walletData = JSON.parse(saved);
@@ -99,7 +99,7 @@ export default function WalletConnect() {
                 setNetwork(walletData.network);
                 setIsConnected(true);
             } catch (e) {
-                localStorage.removeItem('oddsync_wallet');
+                localStorage.removeItem('oddssync_wallet');
             }
         }
     }, []);

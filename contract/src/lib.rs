@@ -1,25 +1,25 @@
 mod betting_pool;       // Keep private if not needed by service, or make pub
 
-use shared::types::{OddsyncAbi, OddsyncMessage, OddsyncResponse};
+use shared::types::{OddssyncAbi, OddssyncMessage, OddssyncResponse};
 use linera_sdk::{
     Contract, ContractRuntime, 
     views::{RootView, View},
 };
 use shared::market_factory::MarketFactory;
 
-pub struct OddsyncContract {
+pub struct OddssyncContract {
     state: MarketFactory,
     runtime: ContractRuntime<Self>,
 }
 
-linera_sdk::contract!(OddsyncContract);
+linera_sdk::contract!(OddssyncContract);
 
-impl linera_sdk::abi::WithContractAbi for OddsyncContract {
-    type Abi = OddsyncAbi;
+impl linera_sdk::abi::WithContractAbi for OddssyncContract {
+    type Abi = OddssyncAbi;
 }
 
-impl Contract for OddsyncContract {
-    type Message = OddsyncMessage;
+impl Contract for OddssyncContract {
+    type Message = OddssyncMessage;
     type Parameters = ();
     type InstantiationArgument = ();
     type EventValue = ();
@@ -28,7 +28,7 @@ impl Contract for OddsyncContract {
         let state = MarketFactory::load(runtime.root_view_storage_context())
             .await
             .expect("Failed to load state");
-        OddsyncContract { state, runtime }
+        OddssyncContract { state, runtime }
     }
 
     async fn instantiate(&mut self, _argument: Self::InstantiationArgument) {
@@ -40,21 +40,21 @@ impl Contract for OddsyncContract {
         operation: Self::Operation,
     ) -> Self::Response {
         match operation {
-            OddsyncMessage::CreateMarket(params) => {
+            OddssyncMessage::CreateMarket(params) => {
                 let creator = self.runtime.authenticated_signer()
                     .expect("No authenticated signer");
                 
                 let timestamp = self.runtime.system_time();
                 
                 match self.state.create_market(timestamp, creator, params).await {
-                    Ok((market_id, chain_id)) => OddsyncResponse::MarketCreated {
+                    Ok((market_id, chain_id)) => OddssyncResponse::MarketCreated {
                         market_id,
                         chain_id,
                     },
-                    Err(_) => OddsyncResponse::Empty,
+                    Err(_) => OddssyncResponse::Empty,
                 }
             }
-            OddsyncMessage::PlaceBet(params) => {
+            OddssyncMessage::PlaceBet(params) => {
                 let _bettor = self.runtime.authenticated_signer()
                     .expect("No authenticated signer");
                 
@@ -63,16 +63,16 @@ impl Contract for OddsyncContract {
                     panic!("Insufficient balance"); 
                 }
                 
-                OddsyncResponse::BetPlaced { bet_id: 0 }
+                OddssyncResponse::BetPlaced { bet_id: 0 }
             }
-            OddsyncMessage::ResolveMarket { market_id, winning_option } => {
+            OddssyncMessage::ResolveMarket { market_id, winning_option } => {
                  let _resolver = self.runtime.authenticated_signer()
                     .expect("No authenticated signer");
                 
                  let _ = self.state.market_resolved(market_id, winning_option).await;
-                 OddsyncResponse::MarketResolved { market_id }
+                 OddssyncResponse::MarketResolved { market_id }
             }
-            OddsyncMessage::CrossChainBet { .. } => {
+            OddssyncMessage::CrossChainBet { .. } => {
                 panic!("CrossChainBet is a message, not an operation");
             }
         }
@@ -80,7 +80,7 @@ impl Contract for OddsyncContract {
 
     async fn execute_message(&mut self, message: Self::Message) {
         match message {
-            OddsyncMessage::CrossChainBet { from_chain, bet } => {
+            OddssyncMessage::CrossChainBet { from_chain, bet } => {
                 let _ = self.state.process_cross_chain_bet(from_chain, bet).await;
             }
             _ => {} 

@@ -52,7 +52,7 @@ impl MutationRoot {
         _ctx: &Context<'_>,
         _input: CreateMarketInput,
     ) -> Result<MarketCreationResult> {
-        // We cannot send operations here. The frontend must submit the OddsyncMessage.
+        // We cannot send operations here. The frontend must submit the OddssyncMessage.
         Ok(MarketCreationResult {
             market_id: 0,
             chain_id: "Submit via Client".to_string(),

@@ -52,7 +52,7 @@ while ! curl -s http://localhost:8081/ > /dev/null; do
     sleep 1
 done
 
-# Define the CreateMarket operation payload (Matches OddsyncMessage::CreateMarket)
+# Define the CreateMarket operation payload (Matches OddssyncMessage::CreateMarket)
 # Note: This is sent to the SYSTEM API (Chain Endpoint), not the App API.
 OPERATION_JSON=$(cat <<EOF
 {

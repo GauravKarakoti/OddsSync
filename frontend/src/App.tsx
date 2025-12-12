@@ -233,7 +233,7 @@ function App() {
       <div className="min-h-screen bg-gray-950 text-white">
         <header className="p-4 border-b border-gray-800 flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <div className="text-2xl font-bold">ODDSYNC</div>
+            <div className="text-2xl font-bold">ODDS SYNC</div>
             <div className="text-sm px-2 py-1 bg-green-900 rounded">Conway Testnet</div>
           </div>
           <DynamicWidget />

@@ -15,8 +15,8 @@ export const CONWAY_TESTNET = {
     }
 };
 
-// ABI for Oddsync Contract
-export const ODDSYNC_ABI = [
+// ABI for Oddssync Contract
+export const Oddssync_ABI = [
     // Core Functions
     "function createMarket(string description, string[] options, uint256 initialLiquidity) returns (uint256 marketId, address marketChain)",
     "function placeBet(uint256 marketId, uint256 optionIndex, uint256 amount) returns (uint256 betId)",
@@ -65,13 +65,13 @@ export class LineraSDK {
         }
     }
 
-    // Connect to Oddsync contract
+    // Connect to Oddssync contract
     async connectToContract(contractAddress: any) {
         try {
             this.contractAddress = contractAddress;
             this.contract = new ethers.Contract(
                 contractAddress,
-                ODDSYNC_ABI,
+                Oddssync_ABI,
                 this.signer
             );
             return true;

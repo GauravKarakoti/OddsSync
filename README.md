@@ -21,7 +21,7 @@ linera wallet request-chain --faucet https://faucet.testnet-conway.linera.net
 Compile the OddsSync smart contracts to WebAssembly:
 ```bash
 # Navigate to the project directory
-cd oddsync
+cd oddssync
 
 # Build the contract and service
 cargo build --release --target wasm32-unknown-unknown
@@ -33,7 +33,7 @@ Deploy the application to your microchain on the testnet:
 ```bash
 # Publish the application bytecode and create an instance
 linera publish-and-create \
-  ../target/wasm32-unknown-unknown/release/oddsync_{contract,service}.wasm \
+  ../target/wasm32-unknown-unknown/release/oddssync_{contract,service}.wasm \
   --json-arguments '{"name":"Test Sports Event"}' \
   --chain-id <YOUR_CHAIN_ID>
 ```
@@ -66,7 +66,7 @@ To run the AI agent component:
 
 ## 📁 Project Structure
 ```text
-oddsync/
+oddssync/
 ├── src/
 │   ├── contract.rs   # Core logic: market creation, betting, resolution.
 │   ├── service.rs    # GraphQL queries and mutations.

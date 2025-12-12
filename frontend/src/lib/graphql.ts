@@ -24,7 +24,7 @@ const wsLink = new GraphQLWsLink(createClient({
     url: CONWAY_CONFIG.wsUrl,
     connectionParams: () => ({
         // Add auth headers if needed
-        authorization: localStorage.getItem('oddsync_token') || null,
+        authorization: localStorage.getItem('oddssync_token') || null,
     }),
     on: {
         connected: () => console.log('📡 Connected to Conway GraphQL WebSocket'),
