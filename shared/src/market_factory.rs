@@ -1,5 +1,5 @@
 use crate::types::{MarketInfo, MarketCreationParams};
-use linera_views::views::RootView;
+use linera_views::views::{RootView, View};
 use linera_views::map_view::MapView;
 use linera_views::register_view::RegisterView;
 use linera_views::context::Context;
@@ -9,7 +9,7 @@ use linera_base::{
     data_types::{Amount, Timestamp},
 };
 
-// Make the struct generic over C (the Context)
+// FIX: Only derive RootView. It automatically implements View for you.
 #[derive(RootView)]
 pub struct MarketFactory<C> {
     pub markets: MapView<C, ChainId, MarketInfo>,
@@ -17,12 +17,13 @@ pub struct MarketFactory<C> {
     pub next_market_id: RegisterView<C, u64>,
 }
 
+// Custom Application Logic
 impl<C> MarketFactory<C>
 where
     C: Context + Send + Sync + Clone + 'static,
     linera_views::ViewError: From<C::Error>,
 {
-    // GATE THIS FUNCTION
+    // GATE THIS FUNCTION - Only available to Contract
     #[cfg(feature = "contract")] 
     pub async fn create_market(
         &mut self,
@@ -61,7 +62,7 @@ where
         Ok((market_id, new_chain_id))
     }
     
-    // Read-only methods are safe for both
+    // Read-only methods are safe for both Service and Contract
     pub async fn get_market(&self, market_id: u64) -> Option<MarketInfo> {
         if let Ok(Some(chain_id)) = self.market_chains.get(&market_id).await {
             self.markets.get(&chain_id).await.unwrap_or(None)
@@ -70,7 +71,6 @@ where
         }
     }
     
-    // GATE THIS FUNCTION
     #[cfg(feature = "contract")]
     pub async fn market_resolved(&mut self, market_id: u64, winning_option: u32) -> Result<(), String> {
          if let Ok(Some(chain_id)) = self.market_chains.get(&market_id).await {
@@ -83,7 +83,6 @@ where
          Ok(())
     }
      
-    // GATE THIS FUNCTION
     #[cfg(feature = "contract")]
     pub async fn process_cross_chain_bet(&mut self, _from_chain: ChainId, _bet: crate::types::Bet) -> Result<(), String> {
          Ok(())

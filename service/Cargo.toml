@@ -7,7 +7,7 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-linera-sdk = { version = "0.15.7", default-features = false }
+linera-sdk = "0.15.7"
 async-graphql = { version = "7.0.17", default-features = false, features = ["chrono"] }
 serde = { version = "1.0", features = ["derive"] }
 chrono = "0.4"
