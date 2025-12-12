@@ -1,18 +1,27 @@
 use crate::types::{MarketInfo, MarketCreationParams};
-use linera_sdk::{
-    linera_base_types::{Amount, ChainId, AccountOwner, CryptoHash, Timestamp},
-    views::{MapView, RegisterView, RootView, ViewStorageContext},
+use linera_views::views::RootView;
+use linera_views::map_view::MapView;
+use linera_views::register_view::RegisterView;
+use linera_views::context::Context;
+use linera_base::{
+    identifiers::{AccountOwner, ChainId},
+    crypto::CryptoHash,
+    data_types::{Amount, Timestamp},
 };
 
+// Make the struct generic over C (the Context)
 #[derive(RootView)]
-#[view(context = ViewStorageContext)] 
-pub struct MarketFactory {
-    pub markets: MapView<ChainId, MarketInfo>,
-    pub market_chains: MapView<u64, ChainId>,
-    pub next_market_id: RegisterView<u64>,
+pub struct MarketFactory<C> {
+    pub markets: MapView<C, ChainId, MarketInfo>,
+    pub market_chains: MapView<C, u64, ChainId>,
+    pub next_market_id: RegisterView<C, u64>,
 }
 
-impl MarketFactory {
+impl<C> MarketFactory<C>
+where
+    C: Context + Send + Sync + Clone + 'static,
+    linera_views::ViewError: From<C::Error>,
+{
     // GATE THIS FUNCTION
     #[cfg(feature = "contract")] 
     pub async fn create_market(
@@ -21,9 +30,8 @@ impl MarketFactory {
         creator: AccountOwner,
         params: MarketCreationParams,
     ) -> Result<(u64, ChainId), String> {
-        // ... (existing implementation) ...
         let market_id = *self.next_market_id.get();
-        self.next_market_id.set(market_id + 1); // This generated the invalid import!
+        self.next_market_id.set(market_id + 1);
         
         let mut bytes = [0u8; 32];
         let id_bytes = market_id.to_le_bytes();
@@ -64,7 +72,7 @@ impl MarketFactory {
     
     // GATE THIS FUNCTION
     #[cfg(feature = "contract")]
-     pub async fn market_resolved(&mut self, market_id: u64, winning_option: u32) -> Result<(), String> {
+    pub async fn market_resolved(&mut self, market_id: u64, winning_option: u32) -> Result<(), String> {
          if let Ok(Some(chain_id)) = self.market_chains.get(&market_id).await {
             if let Ok(Some(mut market)) = self.markets.get(&chain_id).await {
                  market.is_active = false;
@@ -73,11 +81,11 @@ impl MarketFactory {
             }
          }
          Ok(())
-     }
+    }
      
-     // GATE THIS FUNCTION
-     #[cfg(feature = "contract")]
-     pub async fn process_cross_chain_bet(&mut self, _from_chain: ChainId, _bet: crate::types::Bet) -> Result<(), String> {
+    // GATE THIS FUNCTION
+    #[cfg(feature = "contract")]
+    pub async fn process_cross_chain_bet(&mut self, _from_chain: ChainId, _bet: crate::types::Bet) -> Result<(), String> {
          Ok(())
-     }
+    }
 }

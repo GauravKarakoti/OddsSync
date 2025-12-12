@@ -2,6 +2,7 @@ use crate::graphql::schema::*;
 use async_graphql::{Context, Object, Result};
 use shared::market_factory::MarketFactory;
 use std::sync::Arc;
+use linera_sdk::ViewStorageContext;
 
 pub struct QueryRoot;
 
@@ -9,8 +10,7 @@ pub struct QueryRoot;
 impl QueryRoot {
     /// Get all active markets
     async fn markets(&self, ctx: &Context<'_>) -> Result<Vec<Market>> {
-        // Correctly access the specific State type (MarketFactory), not dyn View
-        let state = ctx.data::<Arc<MarketFactory>>()?;
+        let state = ctx.data::<Arc<MarketFactory<ViewStorageContext>>>()?;
         
         // TODO: Implement actual fetching logic from `state.markets`
         // For now returning empty to allow compilation
@@ -19,21 +19,21 @@ impl QueryRoot {
 
     /// Get market by ID
     async fn market(&self, ctx: &Context<'_>, market_id: u64) -> Result<Option<Market>> {
-        let state = ctx.data::<Arc<MarketFactory>>()?;
+        let state &Arc<MarketFactory<_>> = ctx.data::<Arc<MarketFactory<_>>>()?;
         // TODO: Implement fetching logic
         Ok(None)
     }
 
     /// Get bets for a user
     async fn my_bets(&self, ctx: &Context<'_>, _address: String) -> Result<Vec<Bet>> {
-        let state = ctx.data::<Arc<MarketFactory>>()?;
+        let state &Arc<MarketFactory<_>> = ctx.data::<Arc<MarketFactory<_>>>()?;
         // TODO: Implement fetching logic
         Ok(vec![])
     }
 
     /// Get real-time odds for a market
     async fn live_odds(&self, ctx: &Context<'_>, market_id: u64) -> Result<Vec<Odds>> {
-        let state = ctx.data::<Arc<MarketFactory>>()?;
+        let state &Arc<MarketFactory<_>> = ctx.data::<Arc<MarketFactory<_>>>()?;
         // TODO: Implement calculation logic
         Ok(vec![])
     }

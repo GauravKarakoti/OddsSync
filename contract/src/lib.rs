@@ -1,15 +1,25 @@
 mod betting_pool;       // Keep private if not needed by service, or make pub
 
-use shared::types::{OddssyncAbi, OddssyncMessage, OddssyncResponse};
+use shared::types::{OddssyncMessage, OddssyncResponse}; 
 use linera_sdk::{
     Contract, ContractRuntime, 
-    views::{RootView, View},
+    views::{RootView, ViewStorageContext}, // ViewStorageContext is usually in views
 };
+use linera_sdk::abi::ContractAbi;
 use shared::market_factory::MarketFactory;
+use linera_sdk::views::View;
 
 pub struct OddssyncContract {
-    state: MarketFactory,
+    state: MarketFactory<ViewStorageContext>,
     runtime: ContractRuntime<Self>,
+}
+
+// Define the ABI struct LOCALLY so we can implement the trait for it
+pub struct OddssyncAbi;
+
+impl ContractAbi for OddssyncAbi {
+    type Operation = OddssyncMessage;
+    type Response = OddssyncResponse;
 }
 
 linera_sdk::contract!(OddssyncContract);
@@ -25,9 +35,12 @@ impl Contract for OddssyncContract {
     type EventValue = ();
 
     async fn load(runtime: ContractRuntime<Self>) -> Self {
+        // FIX: Use `load` instead of `pre_load`. 
+        // `load` initializes the view structure from storage.
         let state = MarketFactory::load(runtime.root_view_storage_context())
             .await
             .expect("Failed to load state");
+            
         OddssyncContract { state, runtime }
     }
 

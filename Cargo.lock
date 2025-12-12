@@ -3690,7 +3690,7 @@ name = "shared"
 version = "0.1.0"
 dependencies = [
  "async-graphql",
- "linera-sdk",
+ "linera-base",
  "linera-views",
  "serde",
 ]

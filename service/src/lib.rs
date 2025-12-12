@@ -7,13 +7,20 @@ use linera_sdk::{
 };
 use std::sync::Arc;
 use linera_sdk::serde_json;
-use linera_sdk::views::View; // View trait is needed for load()
+use linera_sdk::views::{View, ViewStorageContext};
+use linera_sdk::abi::ServiceAbi;
 
 use shared::market_factory::MarketFactory;
-use shared::types::OddssyncAbi;
 
 pub struct OddssyncService {
-    state: Arc<MarketFactory>,
+    state: Arc<MarketFactory<ViewStorageContext>>,
+}
+
+pub struct OddssyncAbi;
+
+impl ServiceAbi for OddssyncAbi {
+    type Query = String;
+    type QueryResponse = String;
 }
 
 linera_sdk::service!(OddssyncService);
@@ -26,7 +33,6 @@ impl Service for OddssyncService {
     type Parameters = ();
 
     async fn new(runtime: ServiceRuntime<Self>) -> Self {
-        // Use load() instead of pre_load(), await the result, and pass context by value
         let state = MarketFactory::load(runtime.root_view_storage_context())
             .await
             .expect("Failed to load state");

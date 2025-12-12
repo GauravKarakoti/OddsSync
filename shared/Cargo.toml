@@ -9,7 +9,7 @@ service = ["dep:async-graphql"]
 contract = []
 
 [dependencies]
-linera-sdk = { version = "0.15.7", default-features = false }
 linera-views = "0.15.7"
+linera-base = "0.15.7"
 serde = { version = "1.0", features = ["derive"] }
 async-graphql = { version = "7.0.17", default-features = false, optional = true }

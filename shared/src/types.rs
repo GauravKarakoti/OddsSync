@@ -1,7 +1,8 @@
-use linera_sdk::linera_base_types::{AccountOwner, Amount, ChainId, Timestamp};
-use linera_sdk::views::ViewError;
+use linera_base::{
+    data_types::{Amount, Timestamp},
+    identifiers::{AccountOwner, ChainId},
+};
 use serde::{Deserialize, Serialize};
-use linera_sdk::abi::{ContractAbi, ServiceAbi};
 
 #[cfg(feature = "service")]
 use async_graphql::{SimpleObject, ComplexObject};
@@ -93,13 +94,3 @@ pub enum OddssyncResponse {
 
 #[derive(Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, Serialize, Deserialize)]
 pub struct OddssyncAbi;
-
-impl ContractAbi for OddssyncAbi {
-    type Operation = OddssyncMessage;
-    type Response = OddssyncResponse;
-}
-
-impl ServiceAbi for OddssyncAbi {
-    type Query = String;
-    type QueryResponse = String;
-}
