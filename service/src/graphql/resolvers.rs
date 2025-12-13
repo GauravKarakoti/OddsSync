@@ -21,6 +21,7 @@ impl QueryRoot {
     async fn market(&self, ctx: &Context<'_>, market_id: u64) -> Result<Option<Market>> {
         // FIXED: Corrected variable binding syntax
         let state = ctx.data::<Arc<MarketFactory<ViewStorageContext>>>()?;
+        let market_info = state.get_market(market_id).await;
         // TODO: Implement fetching logic
         Ok(None)
     }

@@ -3,7 +3,8 @@
 set -eu
 
 # Check for jq
-if ! command -v jq &> /dev/null; then
+if ! command -v jq &> /dev/null;
+then
     echo "Error: jq is required but not installed."
     exit 1
 fi
@@ -25,15 +26,39 @@ echo "Using Chain ID: $CHAIN_ID"
 echo "Building OddsSync..."
 rustup target add wasm32-unknown-unknown
 
-# Build Contract and Service SEPARATELY
-cargo build --release --target wasm32-unknown-unknown -p contract
-cargo build --release --target wasm32-unknown-unknown -p service
+# FORCE CLEAN: Remove all potential artifacts
+echo "Cleaning build artifacts..."
+rm -rf target/ contract/target/ service/target/ shared/target/
+
+# Build Contract
+echo "Building Contract..."
+(
+    cd contract 
+    cargo build --release --target wasm32-unknown-unknown
+)
+
+# Build Service
+echo "Building Service..."
+(
+    cd service 
+    # The updated Cargo.toml should now prevent contract features from leaking in
+    cargo build --release --target wasm32-unknown-unknown
+)
 
 echo "Deploying OddsSync..."
-# Capture the Application ID
+# Verify files exist
+if [ ! -f "contract/target/wasm32-unknown-unknown/release/contract.wasm" ]; then
+    echo "Error: Contract WASM not found!"
+    exit 1
+fi
+if [ ! -f "service/target/wasm32-unknown-unknown/release/service.wasm" ]; then
+    echo "Error: Service WASM not found!"
+    exit 1
+fi
+
 APP_INFO=($(linera publish-and-create \
-  target/wasm32-unknown-unknown/release/contract.wasm \
-  target/wasm32-unknown-unknown/release/service.wasm \
+  contract/target/wasm32-unknown-unknown/release/contract.wasm \
+  service/target/wasm32-unknown-unknown/release/service.wasm \
   --json-argument '{"name":"Test Sports Event"}'))
 
 APP_ID=${APP_INFO[0]}
@@ -46,14 +71,13 @@ echo "Submitting CreateMarket operation via Client..."
 linera service --port 8081 &
 SERVICE_PID=$!
 
-# Wait for service to be ready
 echo "Waiting for service to start..."
-while ! curl -s http://localhost:8081/ > /dev/null; do
+while ! curl -s http://localhost:8081/ > /dev/null;
+do
     sleep 1
 done
 
-# Define the CreateMarket operation payload (Matches OddssyncMessage::CreateMarket)
-# Note: This is sent to the SYSTEM API (Chain Endpoint), not the App API.
+# Define the CreateMarket operation payload
 OPERATION_JSON=$(cat <<EOF
 {
   "CreateMarket": {
@@ -75,8 +99,6 @@ curl -s -X POST \
   "http://localhost:8081/chains/$CHAIN_ID" > /dev/null
 
 echo -e "\nOperation submitted! Market created."
-
-# Stop the background service
 kill $SERVICE_PID
 wait $SERVICE_PID 2>/dev/null || true
 
