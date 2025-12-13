@@ -82,7 +82,7 @@ export const apolloClient = new ApolloClient({
             Query: {
                 fields: {
                     markets: {
-                        merge(existing, incoming) {
+                        merge(_existing, incoming) { // Fixed: renamed existing to _existing
                             return incoming;
                         }
                     }

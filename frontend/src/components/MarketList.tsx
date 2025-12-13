@@ -162,8 +162,7 @@ export default function MarketList({ isConnected }: any) {
         setPage(1);
     };
 
-    // Handle bet placed callback
-    const handleBetPlaced = (betData: any) => {
+    const handleBetPlaced = (_betData: any) => { // Fixed: renamed betData to _betData
         // Refetch markets to update totals
         refetch();
     };

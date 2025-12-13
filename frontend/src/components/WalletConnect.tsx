@@ -26,8 +26,7 @@ export default function WalletConnect() {
         { name: 'Coinbase Wallet', icon: '🔷' }
     ];
 
-    // Mock connect function
-    const connectWallet = async (walletName: any) => {
+    const connectWallet = async (_walletName: any) => { // Fixed: renamed walletName to _walletName
         setIsConnecting(true);
         
         // Simulate connection delay

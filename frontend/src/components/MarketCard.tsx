@@ -43,7 +43,7 @@ const PLACE_BET_MUTATION = gql`
 export default function MarketCard({ market, onBetPlaced, isConnected }: any) {
     const [betAmount, setBetAmount] = useState('10');
     const [selectedOption, setSelectedOption] = useState(0);
-    const [oddsHistory, setOddsHistory] = useState([]);
+    const [oddsHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [placeBet] = useMutation(PLACE_BET_MUTATION);
 
@@ -100,10 +100,9 @@ export default function MarketCard({ market, onBetPlaced, isConnected }: any) {
         }
     };
 
-    // Chart data for odds history
     const chartData = {
         labels: oddsHistory.map((_, index) => `-${oddsHistory.length - index - 1}m`),
-        datasets: market.odds.map((option: any, idx: any) => ({
+        datasets: market.odds.map((_option: any, idx: any) => ({ // Fixed: renamed option to _option
             label: market.options[idx],
             data: oddsHistory.map((point: any) => 
                 point.odds.find((o: any) => o.optionIndex === idx)?.odds || 1.0
